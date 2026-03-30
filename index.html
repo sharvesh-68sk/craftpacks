@@ -1,404 +1,133 @@
- <!DOCTYPE html>
--<html>
-+<html lang="en">
- <head>
--<meta charset="UTF-8">
--<meta name="viewport" content="width=device-width, initial-scale=1.0">
--<title>MineMod</title>
--
--<style>
--body{
--  font-family: Arial, sans-serif;
--  background:#0f172a;
--  color:white;
--  text-align:center;
--  padding:20px;
--}
--
--h1{
--  color:#22c55e;
--}
--
--.container{
--  background:#111827;
--  padding:20px;
--  border-radius:12px;
--  max-width:500px;
--  margin:auto;
--  box-shadow:0 0 10px rgba(0,0,0,0.5);
--}
--
--label{
--  display:block;
--  margin:10px;
--  font-size:18px;
--}
--
--button{
--  background:#22c55e;
--  border:none;
--  padding:12px 20px;
--  font-size:18px;
--  border-radius:8px;
--  cursor:pointer;
--  margin-top:15px;
--}
--
--button:hover{
--  background:#16a34a;
--}
--
--.footer{
--  margin-top:20px;
--  opacity:0.7;
--}
--</style>
--</head>
-+  <meta charset="UTF-8" />
-+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-+  <title>MineMod</title>
-+  <style>
-+    :root {
-+      --bg: #06080f;
-+      --panel: #101827;
-+      --panel-2: #0f1f35;
-+      --accent: #4ade80;
-+      --accent-strong: #22c55e;
-+      --text: #d1f7df;
-+      --muted: #8fa8b8;
-+      --danger: #f43f5e;
-+      --line: rgba(148, 163, 184, 0.2);
-+    }
-+
-+    * {
-+      box-sizing: border-box;
-+    }
-+
-+    body {
-+      margin: 0;
-+      min-height: 100vh;
-+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-+      background: radial-gradient(circle at 20% 20%, #13375f 0%, var(--bg) 45%),
-+        linear-gradient(160deg, #03050a 0%, #06080f 100%);
-+      color: var(--text);
-+      display: grid;
-+      place-items: center;
-+      padding: 24px;
-+    }
-+
-+    .app {
-+      width: min(900px, 100%);
-+      background: linear-gradient(170deg, rgba(16, 24, 39, 0.95), rgba(15, 31, 53, 0.9));
-+      border: 1px solid var(--line);
-+      border-radius: 16px;
-+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
-+      overflow: hidden;
-+    }
-+
-+    .header {
-+      padding: 24px;
-+      border-bottom: 1px solid var(--line);
-+      background: linear-gradient(90deg, rgba(34, 197, 94, 0.1), rgba(6, 8, 15, 0));
-+    }
-+
-+    .title {
-+      margin: 0;
-+      font-size: clamp(1.8rem, 2.6vw, 2.4rem);
-+      letter-spacing: 0.5px;
-+      color: #d4ffe6;
-+      text-shadow: 0 0 8px rgba(74, 222, 128, 0.25);
-+    }
-+
-+    .subtitle {
-+      margin: 8px 0 0;
-+      color: var(--muted);
-+    }
-+
-+    .content {
-+      padding: 24px;
-+      display: grid;
-+      gap: 20px;
-+    }
-+
-+    .mod-grid {
-+      display: grid;
-+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-+      gap: 14px;
-+    }
-+
-+    .mod-card {
-+      display: flex;
-+      align-items: flex-start;
-+      gap: 12px;
-+      padding: 14px;
-+      border-radius: 12px;
-+      background: rgba(7, 17, 31, 0.72);
-+      border: 1px solid rgba(74, 222, 128, 0.14);
-+      transition: border-color 0.2s ease, transform 0.2s ease;
-+    }
-+
-+    .mod-card:hover {
-+      border-color: rgba(74, 222, 128, 0.45);
-+      transform: translateY(-2px);
-+    }
-+
-+    .mod-card input {
-+      margin-top: 3px;
-+      inline-size: 18px;
-+      block-size: 18px;
-+      accent-color: var(--accent-strong);
-+      cursor: pointer;
-+      flex-shrink: 0;
-+    }
-+
-+    .mod-name {
-+      font-weight: 600;
-+      color: #ebfff3;
-+    }
-+
-+    .mod-desc {
-+      margin-top: 2px;
-+      color: var(--muted);
-+      font-size: 0.92rem;
-+    }
-+
-+    .actions {
-+      display: flex;
-+      flex-wrap: wrap;
-+      align-items: center;
-+      gap: 12px;
-+    }
- 
-+    .btn {
-+      border: none;
-+      border-radius: 10px;
-+      padding: 12px 20px;
-+      font-weight: 700;
-+      cursor: pointer;
-+      transition: transform 0.15s ease, filter 0.2s ease;
-+    }
-+
-+    .btn:active {
-+      transform: translateY(1px);
-+    }
-+
-+    .btn-primary {
-+      background: linear-gradient(180deg, var(--accent), var(--accent-strong));
-+      color: #04240f;
-+      box-shadow: 0 10px 20px rgba(34, 197, 94, 0.26);
-+    }
-+
-+    .btn-secondary {
-+      background: #1b2c47;
-+      color: var(--text);
-+      border: 1px solid rgba(209, 247, 223, 0.16);
-+    }
-+
-+    .btn:hover {
-+      filter: brightness(1.08);
-+    }
-+
-+    .status {
-+      min-height: 24px;
-+      font-size: 0.95rem;
-+      color: var(--muted);
-+    }
-+
-+    .status.error {
-+      color: var(--danger);
-+    }
-+
-+    .footer {
-+      padding: 0 24px 22px;
-+      color: rgba(209, 247, 223, 0.6);
-+      font-size: 0.85rem;
-+    }
-+
-+    code {
-+      background: rgba(209, 247, 223, 0.08);
-+      padding: 2px 6px;
-+      border-radius: 6px;
-+    }
-+  </style>
-+</head>
- <body>
-+  <main class="app">
-+    <header class="header">
-+      <h1 class="title">MineMod</h1>
-+      <p class="subtitle">Pick your favorite Minecraft mods and download one <code>.mrpack</code> in one click.</p>
-+    </header>
-+
-+    <section class="content">
-+      <div class="mod-grid" id="modGrid"></div>
-+
-+      <div class="actions">
-+        <button class="btn btn-primary" id="downloadBtn" type="button">Download .mrpack</button>
-+        <button class="btn btn-secondary" id="selectAllBtn" type="button">Select All</button>
-+      </div>
-+      <p class="status" id="status" aria-live="polite"></p>
-+    </section>
-+
-+    <div class="footer">Static-only build • No backend required • GitHub Pages compatible</div>
-+  </main>
-+
-+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-+  <script>
-+    const MINECRAFT_VERSION = "1.20.1";
-+    const FABRIC_LOADER_VERSION = "0.15.11";
-+
-+    const mods = [
-+      { id: "AANobbMI", name: "Sodium", desc: "Massive FPS boost for Minecraft.", side: "both" },
-+      { id: "gvQqBUqZ", name: "Lithium", desc: "General optimization for game logic.", side: "both" },
-+      { id: "uXXizFIs", name: "FerriteCore", desc: "Reduces memory usage.", side: "both" },
-+      { id: "mOgUt4GM", name: "Mod Menu", desc: "In-game mod configuration list.", side: "client" },
-+      { id: "YL57xq9U", name: "Iris", desc: "Shader support for Sodium.", side: "client" },
-+      { id: "P7dR8mSH", name: "EntityCulling", desc: "Skips rendering hidden entities.", side: "client" }
-+    ];
-+
-+    const modGrid = document.getElementById("modGrid");
-+    const downloadBtn = document.getElementById("downloadBtn");
-+    const selectAllBtn = document.getElementById("selectAllBtn");
-+    const statusEl = document.getElementById("status");
- 
--<h1>MineMod</h1>
--<p>Select mods and download in one click</p>
-+    function renderMods() {
-+      modGrid.innerHTML = mods
-+        .map(
-+          (mod) => `
-+            <label class="mod-card">
-+              <input type="checkbox" value="${mod.id}" data-side="${mod.side}" />
-+              <span>
-+                <span class="mod-name">${mod.name}</span>
-+                <span class="mod-desc">${mod.desc}</span>
-+              </span>
-+            </label>
-+          `
-+        )
-+        .join("");
-+    }
- 
--<div class="container">
-+    function getSelectedMods() {
-+      return [...document.querySelectorAll('input[type="checkbox"]:checked')].map((checkbox) => ({
-+        projectID: checkbox.value,
-+        side: checkbox.dataset.side
-+      }));
-+    }
- 
--<h3>Select Mods</h3>
-+    function setStatus(message, isError = false) {
-+      statusEl.textContent = message;
-+      statusEl.classList.toggle("error", isError);
-+    }
- 
--<label><input type="checkbox" value="sodium"> Sodium (FPS Boost)</label>
--<label><input type="checkbox" value="lithium"> Lithium (Performance)</label>
--<label><input type="checkbox" value="ferrite-core"> FerriteCore (RAM Optimize)</label>
--<label><input type="checkbox" value="modmenu"> Mod Menu</label>
--<label><input type="checkbox" value="iris"> Iris Shaders</label>
-+    function toggleSelectAll() {
-+      const checkboxes = [...document.querySelectorAll('input[type="checkbox"]')];
-+      const allChecked = checkboxes.every((box) => box.checked);
-+      checkboxes.forEach((box) => {
-+        box.checked = !allChecked;
-+      });
-+      selectAllBtn.textContent = allChecked ? "Select All" : "Clear All";
-+      setStatus(`${allChecked ? "Cleared" : "Selected"} ${checkboxes.length} mods.`);
-+    }
- 
--<button onclick="generatePack()">Download Pack</button>
-+    async function generateMrpack() {
-+      const selected = getSelectedMods();
- 
--</div>
-+      if (!selected.length) {
-+        setStatus("Select at least one mod before downloading.", true);
-+        return;
-+      }
- 
--<div class="footer">
--MineMod © 2026
--</div>
-+      setStatus(`Building pack with ${selected.length} mod${selected.length > 1 ? "s" : ""}...`);
- 
--<script>
--function generatePack() {
-+      const modrinthIndex = {
-+        formatVersion: 1,
-+        game: "minecraft",
-+        versionId: `minemod-${MINECRAFT_VERSION}-${Date.now()}`,
-+        name: "MineMod Pack",
-+        summary: "Generated with MineMod",
-+        files: selected.map((mod) => ({
-+          path: `mods/${mod.projectID}.jar`,
-+          hashes: {},
-+          env: {
-+            client: mod.side === "both" || mod.side === "client" ? "required" : "unsupported",
-+            server: mod.side === "both" || mod.side === "server" ? "required" : "unsupported"
-+          },
-+          downloads: [],
-+          fileSize: 0
-+        })),
-+        dependencies: {
-+          minecraft: MINECRAFT_VERSION,
-+          "fabric-loader": FABRIC_LOADER_VERSION
-+        }
-+      };
- 
--const selected = [...document.querySelectorAll('input:checked')]
--.map(el => ({
--  project_id: el.value
--}));
-+      const zip = new JSZip();
-+      zip.file("modrinth.index.json", JSON.stringify(modrinthIndex, null, 2));
-+      zip.file("overrides/README.txt", "This pack was generated by MineMod.");
- 
--if(selected.length === 0){
--  alert("Select at least one mod");
--  return;
--}
-+      const blob = await zip.generateAsync({ type: "blob", compression: "DEFLATE" });
-+      const url = URL.createObjectURL(blob);
-+      const anchor = document.createElement("a");
-+      anchor.href = url;
-+      anchor.download = "MineMod-Pack.mrpack";
-+      anchor.click();
-+      URL.revokeObjectURL(url);
- 
--const pack = {
--  formatVersion: 1,
--  game: "minecraft",
--  versionId: "1.20.1",
--  name: "MineMod Custom Pack",
--  summary: "Generated from MineMod",
--  files: selected
--};
-+      setStatus("Download started. Import MineMod-Pack.mrpack into your launcher.");
-+    }
- 
--const blob = new Blob([JSON.stringify(pack, null, 2)], {
--type: "application/json"
--});
-+    downloadBtn.addEventListener("click", () => {
-+      generateMrpack().catch(() => {
-+        setStatus("Failed to generate .mrpack in browser.", true);
-+      });
-+    });
- 
--const a = document.createElement("a");
--a.href = URL.createObjectURL(blob);
--a.download = "MineMod-Pack.mrpack";
--a.click();
--}
--</script>
-+    selectAllBtn.addEventListener("click", toggleSelectAll);
- 
-+    renderMods();
-+    setStatus("Ready. Choose mods and click Download .mrpack.");
-+  </script>
- </body>
- </html>
- 
-EOF
-)
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MineMod</title>
+<style>
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#0f172a;
+  color:white;
+}
+header{
+  padding:20px;
+  text-align:center;
+  background:#020617;
+  font-size:24px;
+  font-weight:bold;
+}
+.container{
+  padding:20px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:15px;
+}
+.card{
+  background:#111827;
+  padding:15px;
+  border-radius:10px;
+  border:1px solid #1f2937;
+}
+.card:hover{
+  transform:translateY(-3px);
+}
+.actions{
+  text-align:center;
+  padding:20px;
+}
+button{
+  padding:12px 20px;
+  margin:5px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:bold;
+}
+.download{
+  background:#22c55e;
+  color:black;
+}
+.clear{
+  background:#ef4444;
+  color:white;
+}
+</style>
+</head>
+
+<body>
+
+<header>🎮 MineMod Pack Builder</header>
+
+<div class="container" id="mods"></div>
+
+<div class="actions">
+<button class="download" onclick="downloadPack()">Download .mrpack</button>
+<button class="clear" onclick="clearSelection()">Clear</button>
+</div>
+
+<script>
+const mods = [
+ {name:"Sodium", id:"sodium"},
+ {name:"Lithium", id:"lithium"},
+ {name:"Iris Shaders", id:"iris"},
+ {name:"JourneyMap", id:"journeymap"},
+ {name:"JEI", id:"jei"},
+ {name:"Create", id:"create"}
+];
+
+const container = document.getElementById("mods");
+
+mods.forEach(mod=>{
+ const div=document.createElement("div");
+ div.className="card";
+ div.innerHTML=`
+ <label>
+ <input type="checkbox" value="${mod.id}">
+ ${mod.name}
+ </label>
+ `;
+ container.appendChild(div);
+});
+
+function getSelected(){
+ return [...document.querySelectorAll("input:checked")]
+ .map(el=>el.value);
+}
+
+function clearSelection(){
+ document.querySelectorAll("input").forEach(el=>el.checked=false);
+}
+
+function downloadPack(){
+ const selected = getSelected();
+ if(selected.length===0){
+  alert("Select at least one mod!");
+  return;
+ }
+
+ const data={
+  formatVersion:1,
+  game:"minecraft",
+  versionId:"MineMod Pack",
+  name:"MineMod Pack",
+  summary:"Generated with MineMod",
+  files:selected.map(m=>({path:`mods/${m}.jar`}))
+ };
+
+ const blob = new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+ const url = URL.createObjectURL(blob);
+
+ const a=document.createElement("a");
+ a.href=url;
+ a.download="MineMod-Pack.mrpack";
+ a.click();
+
+ URL.revokeObjectURL(url);
+}
+</script>
+
+</body>
+</html>
