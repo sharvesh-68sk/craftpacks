@@ -4,129 +4,179 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MineMod</title>
+<title>MineMod Advanced</title>
+
 <style>
 body{
-  margin:0;
-  font-family:Arial, sans-serif;
-  background:#0f172a;
-  color:white;
+background:#0b1120;
+color:white;
+font-family:Arial;
+margin:0;
 }
 header{
-  padding:20px;
-  text-align:center;
-  background:#020617;
-  font-size:24px;
-  font-weight:bold;
+padding:15px;
+background:#020617;
+text-align:center;
+font-size:22px;
+font-weight:bold;
 }
-.container{
-  padding:20px;
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:15px;
+.controls{
+padding:15px;
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+justify-content:center;
+}
+input,select{
+padding:10px;
+border-radius:8px;
+border:none;
+}
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:15px;
+padding:20px;
 }
 .card{
-  background:#111827;
-  padding:15px;
-  border-radius:10px;
-  border:1px solid #1f2937;
-}
-.card:hover{
-  transform:translateY(-3px);
+background:#111827;
+padding:15px;
+border-radius:10px;
+border:1px solid #1f2937;
 }
 .actions{
-  text-align:center;
-  padding:20px;
+text-align:center;
+padding:20px;
 }
 button{
-  padding:12px 20px;
-  margin:5px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-  font-weight:bold;
+padding:12px 18px;
+margin:5px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
 }
-.download{
-  background:#22c55e;
-  color:black;
-}
-.clear{
-  background:#ef4444;
-  color:white;
-}
+.download{background:#22c55e;}
+.clear{background:#ef4444;color:white;}
 </style>
+
 </head>
 
 <body>
 
-<header>🎮 MineMod Pack Builder</header>
+<header>🎮 MineMod Advanced</header>
 
-<div class="container" id="mods"></div>
+<div class="controls">
+<input type="text" id="search" placeholder="Search mods..." oninput="render()">
+<select id="loader" onchange="render()">
+<option value="all">All</option>
+<option value="fabric">Fabric</option>
+<option value="forge">Forge</option>
+</select>
+<select id="version">
+<option value="1.20.1">1.20.1</option>
+<option value="1.19.4">1.19.4</option>
+</select>
+</div>
+
+<div class="grid" id="mods"></div>
 
 <div class="actions">
-<button class="download" onclick="downloadPack()">Download .mrpack</button>
+<button class="download" onclick="downloadMods()">Download Selected</button>
 <button class="clear" onclick="clearSelection()">Clear</button>
 </div>
 
 <script>
-const mods = [
- {name:"Sodium", id:"sodium"},
- {name:"Lithium", id:"lithium"},
- {name:"Iris Shaders", id:"iris"},
- {name:"JourneyMap", id:"journeymap"},
- {name:"JEI", id:"jei"},
- {name:"Create", id:"create"}
+const mods=[
+{
+name:"Sodium",
+loader:"fabric",
+slug:"sodium"
+},
+{
+name:"Lithium",
+loader:"fabric",
+slug:"lithium"
+},
+{
+name:"Iris",
+loader:"fabric",
+slug:"iris"
+},
+{
+name:"JEI",
+loader:"forge",
+slug:"jei"
+},
+{
+name:"Create",
+loader:"forge",
+slug:"create"
+}
 ];
 
-const container = document.getElementById("mods");
+let selected=new Set();
 
-mods.forEach(mod=>{
- const div=document.createElement("div");
- div.className="card";
- div.innerHTML=`
- <label>
- <input type="checkbox" value="${mod.id}">
+function render(){
+const grid=document.getElementById("mods");
+grid.innerHTML="";
+const search=document.getElementById("search").value.toLowerCase();
+const loader=document.getElementById("loader").value;
+
+mods
+.filter(m=>{
+return(
+m.name.toLowerCase().includes(search) &&
+(loader==="all"||m.loader===loader)
+);
+})
+.forEach(mod=>{
+const card=document.createElement("div");
+card.className="card";
+
+card.innerHTML=`
+<label>
+<input type="checkbox" ${selected.has(mod.slug)?"checked":""}
+onchange="toggle('${mod.slug}')">
  ${mod.name}
- </label>
- `;
- container.appendChild(div);
-});
+</label>
+<br>
+<small>${mod.loader}</small>
+`;
 
-function getSelected(){
- return [...document.querySelectorAll("input:checked")]
- .map(el=>el.value);
+grid.appendChild(card);
+});
+}
+
+function toggle(slug){
+if(selected.has(slug)) selected.delete(slug);
+else selected.add(slug);
 }
 
 function clearSelection(){
- document.querySelectorAll("input").forEach(el=>el.checked=false);
+selected.clear();
+render();
 }
 
-function downloadPack(){
- const selected = getSelected();
- if(selected.length===0){
-  alert("Select at least one mod!");
-  return;
- }
-
- const data={
-  formatVersion:1,
-  game:"minecraft",
-  versionId:"MineMod Pack",
-  name:"MineMod Pack",
-  summary:"Generated with MineMod",
-  files:selected.map(m=>({path:`mods/${m}.jar`}))
- };
-
- const blob = new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
- const url = URL.createObjectURL(blob);
-
- const a=document.createElement("a");
- a.href=url;
- a.download="MineMod-Pack.mrpack";
- a.click();
-
- URL.revokeObjectURL(url);
+function downloadMods(){
+if(selected.size===0){
+alert("Select mods first");
+return;
 }
+
+let i=0;
+selected.forEach(slug=>{
+setTimeout(()=>{
+window.open(
+`https://modrinth.com/mod/${slug}/versions`,
+"_blank"
+);
+},i*700);
+i++;
+});
+}
+
+render();
 </script>
 
 </body>
