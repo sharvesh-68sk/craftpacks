@@ -4,123 +4,166 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>craftpacks API</title>
+<title>CraftPacks - Smart Modpack Builder</title>
 
 <style>
-body{background:#0b1120;color:white;font-family:Arial;margin:0;}
-header{padding:15px;background:#020617;text-align:center;font-size:22px;font-weight:bold;}
-.controls{padding:15px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
-input,select{padding:10px;border-radius:8px;border:none;}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:15px;padding:20px;}
-.card{background:#111827;padding:15px;border-radius:10px;border:1px solid #1f2937;text-align:center;}
-.card img{width:64px;height:64px;border-radius:12px;margin-bottom:10px;}
-.actions{text-align:center;padding:20px;}
-button{padding:12px 18px;margin:5px;border:none;border-radius:8px;cursor:pointer;font-weight:bold;}
-.download{background:#22c55e;}
-.clear{background:#ef4444;color:white;}
+body{background:#0b1120;color:white;font-family:Arial;margin:0}
+header{padding:15px;background:#020617;text-align:center;font-size:22px}
+.controls{padding:10px;text-align:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px;padding:20px}
+.card{background:#111827;padding:15px;border-radius:10px}
+.group{padding:15px;text-align:center}
+button{padding:10px 15px;margin:5px;border:none;border-radius:8px;cursor:pointer}
 </style>
 <title>CraftPacks - Minecraft Modpack Builder</title>
 <meta name="description" content="CraftPacks lets you build Minecraft modpacks and download mods directly from Modrinth.">
 <meta name="keywords" content="Minecraft modpack builder, Modrinth downloader, CraftPacks, Minecraft mods">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://sharvesh-68sk.github.io/craftpacks/">
- 
+
 </head>
 
 <body>
 
-<header>🎮 craftpacks API Builder</header>
+<header>🎮 CraftPacks Smart Builder</header>
 
 <div class="controls">
-<input type="text" id="search" placeholder="Search mods...">
+<select id="version">
+<option value="1.20.1">1.20.1</option>
+<option value="1.19.4">1.19.4</option>
+</select>
+
 <select id="loader">
 <option value="fabric">Fabric</option>
 <option value="forge">Forge</option>
-<option value="quilt">Quilt</option>
 </select>
-<select id="version">
-<option value="1.20.1">1.20.1</option>
-<option value="1.20">1.20</option>
-<option value="1.19.4">1.19.4</option>
-</select>
-<button onclick="loadMods()">Search</button>
+</div>
+
+<div class="group">
+<b>Quick Groups</b><br>
+<button onclick="selectGroup('fps')">⚡ FPS Boost</button>
+<button onclick="selectGroup('shaders')">🌅 Low End Shaders</button>
+<button onclick="selectGroup('pvp')">⚔️ PvP</button>
 </div>
 
 <div class="grid" id="mods"></div>
 
-<div class="actions">
-<button class="download" onclick="downloadSelected()">Download Selected</button>
-<button class="clear" onclick="clearSelection()">Clear</button>
+<div style="text-align:center">
+<button onclick="downloadAll()">Download Selected</button>
 </div>
 
 <script>
-let selected = new Map();
-let currentMods = [];
-
-async function loadMods(){
-const query = document.getElementById("search").value || "performance";
-const loader = document.getElementById("loader").value;
-const version = document.getElementById("version").value;
-
-const url = `https://api.modrinth.com/v2/search?query=${query}&facets=[["categories:${loader}"],["versions:${version}"]]`;
-
-const res = await fetch(url);
-const data = await res.json();
-
-currentMods = data.hits;
-render();
+const mods=[
+{
+name:"Sodium",
+group:"fps",
+loader:"fabric",
+versions:["1.20.1","1.19.4"],
+site:"modrinth",
+slug:"sodium"
+},
+{
+name:"Lithium",
+group:"fps",
+loader:"fabric",
+versions:["1.20.1","1.19.4"],
+site:"modrinth",
+slug:"lithium"
+},
+{
+name:"Iris",
+group:"shaders",
+loader:"fabric",
+versions:["1.20.1"],
+site:"modrinth",
+slug:"iris"
+},
+{
+name:"Complementary Shaders",
+group:"shaders",
+loader:"any",
+versions:["1.20.1"],
+site:"curseforge",
+slug:"complementary-reimagined"
+},
+{
+name:"Better PvP",
+group:"pvp",
+loader:"forge",
+versions:["1.20.1"],
+site:"curseforge",
+slug:"better-pvp-mod"
 }
+];
+
+let selected=new Set();
 
 function render(){
+const version=document.getElementById("version").value;
+const loader=document.getElementById("loader").value;
+
 const grid=document.getElementById("mods");
 grid.innerHTML="";
 
-currentMods.forEach(mod=>{
-const icon = mod.icon_url || "https://cdn.modrinth.com/data/cached_images/default.png";
+mods
+.filter(m=>m.versions.includes(version))
+.filter(m=>m.loader==="any"||m.loader===loader)
+.forEach(mod=>{
 
-const card=document.createElement("div");
-card.className="card";
+const div=document.createElement("div");
+div.className="card";
 
-card.innerHTML=`
-<img src="${icon}">
-<h3>${mod.title}</h3>
-<p style="font-size:12px">${mod.description || ""}</p>
+div.innerHTML=`
 <label>
-<input type="checkbox" onchange="toggle('${mod.slug}')">
- Select
+<input type="checkbox" onchange="toggle('${mod.name}')">
+${mod.name}
 </label>
+<br>
+<small>${mod.group}</small>
 `;
 
-grid.appendChild(card);
+grid.appendChild(div);
+
 });
 }
 
-function toggle(slug){
-if(selected.has(slug)) selected.delete(slug);
-else selected.set(slug,true);
+function toggle(name){
+if(selected.has(name)) selected.delete(name);
+else selected.add(name);
 }
 
-function clearSelection(){
-selected.clear();
-document.querySelectorAll("input[type=checkbox]").forEach(c=>c.checked=false);
+function selectGroup(group){
+mods
+.filter(m=>m.group===group)
+.forEach(m=>selected.add(m.name));
+render();
 }
 
-async function downloadSelected(){
-if(selected.size===0){
-alert("Select mods first");
-return;
-}
-
+function downloadAll(){
 let i=0;
-selected.forEach(slug=>{
+
+mods
+.filter(m=>selected.has(m.name))
+.forEach(mod=>{
+
+let url="";
+
+if(mod.site==="modrinth")
+url=`https://modrinth.com/mod/${mod.slug}/versions`;
+
+if(mod.site==="curseforge")
+url=`https://www.curseforge.com/minecraft/mc-mods/${mod.slug}`;
+
 setTimeout(()=>{
-window.open(`https://modrinth.com/mod/${slug}/versions`,"_blank");
+window.open(url,"_blank");
 },i*800);
+
 i++;
+
 });
 }
 
-loadMods();
+render();
 </script>
 
 </body>
